@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move element &apos;Apple.java&apos; to &apos;AppleGame/src/(default package)&apos;&#x0D;&#x0A;- Original project: &apos;assignment 03&apos;&#x0D;&#x0A;- Destination element: &apos;AppleGame/src/(default package)&apos;&#x0D;&#x0A;- Original element: &apos;Apple.java&apos;&#x0D;&#x0A;- Update references to refactored element" description="Move file" destination="=AppleGame/src&lt;" element1="Apple.java" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1476292823467" units="0" version="1.0"/>
+</session>

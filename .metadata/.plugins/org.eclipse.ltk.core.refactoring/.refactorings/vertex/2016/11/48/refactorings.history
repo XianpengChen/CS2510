@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move element &apos;FreifeldLec31Dijkstra111016.java&apos; to &apos;vertex/src&apos;&#x0D;&#x0A;- Original project: &apos;vertex&apos;&#x0D;&#x0A;- Destination element: &apos;vertex/src&apos;&#x0D;&#x0A;- Original element: &apos;FreifeldLec31Dijkstra111016.java&apos;&#x0D;&#x0A;- Update references to refactored element" description="Move file" destination="/src" element1="FreifeldLec31Dijkstra111016.java" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1479756115245" units="0" version="1.0"/>
+</session>

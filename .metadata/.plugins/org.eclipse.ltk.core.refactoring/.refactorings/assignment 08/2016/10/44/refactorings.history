@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Extract local variable &apos;sentinel&apos; from expression &apos;new Sentinel(this.next.next,this.prev)&apos;&#x0D;&#x0A;- Original project: &apos;assignment 08&apos;&#x0D;&#x0A;- Variable name: &apos;sentinel&apos;&#x0D;&#x0A;- Destination method: &apos;Sentinel.size()&apos;&#x0D;&#x0A;- Variable expression: &apos;new Sentinel(this.next.next,this.prev)&apos;&#x0D;&#x0A;- Replace occurrences of expression with variable" description="Extract local variable &apos;sentinel&apos;" final="false" id="org.eclipse.jdt.ui.extract.temp" input="/src&lt;{Dequeue.java" name="sentinel" replace="true" selection="973 39" stamp="1477758131924" version="1.0"/>
+</session>

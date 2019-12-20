@@ -1,0 +1,318 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import tester.*;
+import javalib.impworld.*;
+import java.awt.Color;
+import javalib.worldimages.*;
+
+class ListIterator<T> implements Iterator<T> {
+    IList<T> items;
+    ListIterator(IList<T> items) {
+        this.items = items;
+    }
+    public boolean hasNext() {
+        return this.items.isCons();
+        
+    }
+    public T next() {
+        ConsList<T> itemsAsCons = this.items.asCons();
+        T answer = itemsAsCons.first;
+        this.items = itemsAsCons.rest;
+        return answer;
+        
+    }
+    public void remove() {
+        throw new UnsupportedOperationException("Don't do this!");
+    }
+}
+//Represents a single square of the game area
+class Cell {
+    // represents absolute height of this cell, in feet
+    double height;
+    // In logical coordinates, with the origin at the top-left corner of the scren
+    int x;
+    int y;
+    // the four adjacent cells to this one
+    Cell left;
+    Cell top; 
+    Cell right;
+    Cell bottom;
+    // reports whether this cell is flooded or not
+    boolean isFlooded;
+    Cell(double height, int x, int y, Cell left, Cell top, Cell right,
+            Cell bottom, boolean isFlooded) {
+        this.height = height;
+        this.x = x;
+        this.y = y;
+        this.left = left;
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+        this.isFlooded = isFlooded;
+
+    }
+    Cell(double height, int x, int y) {
+        this.height = height;
+        this.x = x;
+        this.y = y;
+        this.left = this;
+        this.top = this;
+        this.right = this;
+        this.bottom = this;
+        this.isFlooded = true;
+    }
+
+    Color getColor() {
+        if (this.height <= 0) {
+            return Color.BLUE;
+        }
+        else {
+            return new Color(7 * ((int) this.height), 180, (int) (7 * this.height));
+        }
+
+    }
+
+    WorldImage drawCell() {
+        return new RectangleImage(11, 11, OutlineMode.SOLID, this.getColor());
+    }
+}
+class OceanCell extends Cell {
+
+    OceanCell(double height, int x, int y, Cell left, Cell top,
+            Cell right, Cell bottom, boolean isFlooded) {
+        super(height, x, y, left, top, right, bottom, isFlooded);
+
+    }
+    WorldImage drawOceanCell() {
+        return new RectangleImage(11, 11, OutlineMode.SOLID, Color.BLUE);
+    }
+}
+
+class ForbiddenIslandWorld extends World {
+    // Defines an int constant
+    static final int ISLAND_SIZE = 64;
+    // All the cells of the game, including the ocean
+    IList<Cell> board;
+    // the current height of the ocean
+    int waterHeight;
+
+
+    ForbiddenIslandWorld( IList<Cell> board, int waterHeight) {
+        this.board = board;
+        this.waterHeight = waterHeight;
+
+    }
+    public WorldScene makeScene() {
+        WorldScene setup = new WorldScene((ForbiddenIslandWorld.ISLAND_SIZE + 1) * 11, 
+                (ForbiddenIslandWorld.ISLAND_SIZE + 1) * 11);
+        for (Cell t : this.board) {
+            setup.placeImageXY(t.drawCell(), t.x * 11 - 5, t.y * 11 - 5);
+        }
+        return setup;
+
+    }
+
+    public void onTick() {
+        return;
+    }
+    public void onKeyEvent(String ke) {
+        return;
+    }
+    public void onMouseClicked(Posn p) {
+        return;
+    }
+
+}
+
+class ArrayUtils {
+    ArrayList<Double> rowinitial() {
+        ArrayList<Double> result = new ArrayList<Double>();
+        while (result.size() < (ForbiddenIslandWorld.ISLAND_SIZE + 1)) {
+            result.add((double) 0);
+        }
+        return result;
+
+    }
+
+    ArrayList<Cell> doubletoCell(int y, ArrayList<Double> arr) {
+        ArrayList<Cell> start = new ArrayList<Cell>();
+        for (int i = 0;
+                i < arr.size();
+                i = i + 1) {
+            start.add(new Cell(arr.get(i), i + 1, y));
+        }
+        return start;
+    }
+
+    ArrayList<ArrayList<Cell>> convert(ArrayList<ArrayList<Double>> arr) {
+        ArrayList<ArrayList<Cell>> setup = new ArrayList<ArrayList<Cell>>();
+        for (int i = 0;
+                i < arr.size();
+                i = i + 1) {
+            setup.add(this.doubletoCell(i + 1, arr.get(i)));
+
+        }
+        return setup;
+
+    }
+
+    ArrayList<ArrayList<Double>> initializeCells() {
+        ArrayList<ArrayList<Double>> setup = new ArrayList<ArrayList<Double>>();
+        while (setup.size() < (ForbiddenIslandWorld.ISLAND_SIZE + 1)) {
+            setup.add(this.rowinitial());
+        }
+        return setup;
+
+    }
+    IList<Cell> arrayToList(ArrayList<Cell> arr) {
+        
+        IList<Cell> setup = new MtList<Cell>();
+        for (int i = arr.size() - 1;
+                i >= 0;
+                i = i - 1) {
+            setup = new ConsList<Cell>(arr.get(i), setup);
+        }
+        return setup;
+    }
+    IList<Cell> cellsToList(ArrayList<ArrayList<Cell>> arr) {
+        IList<Cell> setup = new MtList<Cell>();
+        for (int i = arr.size() - 1;
+                i >= 0;
+                i = i - 1) {
+            setup = this.arrayToList(arr.get(i)).append(setup);
+        }
+        return setup;
+    }
+}
+
+interface Mutation<T> {
+    void mutate(T t);
+}
+
+class InitialHeight implements Mutation<Cell> {
+
+    public void mutate(Cell t) {
+        t.height = 32 - Math.abs(((ForbiddenIslandWorld.ISLAND_SIZE / 2) + 1 - t.x)) 
+                - Math.abs(((ForbiddenIslandWorld.ISLAND_SIZE / 2) + 1 - t.y));
+    }  
+}
+
+class InitialHeightRandomly implements Mutation<Cell> {
+
+
+    public void mutate(Cell t) {
+        if ((32 - Math.abs(((ForbiddenIslandWorld.ISLAND_SIZE / 2) + 1 - t.x)) 
+                - Math.abs(((ForbiddenIslandWorld.ISLAND_SIZE / 2) + 1 - t.y))) > 0) {
+            t.height = Math.random() * 32 + 1;
+        }
+        else {
+            t.height = 32 - Math.abs(((ForbiddenIslandWorld.ISLAND_SIZE / 2) + 1 - t.x)) 
+                    - Math.abs(((ForbiddenIslandWorld.ISLAND_SIZE / 2) + 1 - t.y));
+        }
+
+    }
+
+}
+
+interface IList<T> extends Iterable<T> {
+
+    void mutate(Mutation<T> m);
+    ConsList<T> asCons();
+    boolean isCons();
+    IList<T> append(IList<T> given);
+
+}
+
+class MtList<T> implements IList<T> {
+   
+    public void mutate(Mutation<T> m) {
+        return;
+    }
+
+
+    public boolean isCons() {
+   
+        return false;
+    }
+
+    public ConsList<T> asCons() {
+        throw new RuntimeException("I'm not a Cons!");
+    }
+
+    public Iterator<T> iterator() {
+        return new ListIterator<T>(this);
+    }
+
+    
+    public IList<T> append(IList<T> given) {
+        return given;
+    }
+}
+
+class ConsList<T> implements IList<T> {
+    T first;
+    IList<T> rest;
+    ConsList(T first, IList<T> rest) {
+        this.first = first;
+        this.rest = rest;
+    }
+
+    public void mutate(Mutation<T> m) {
+        m.mutate(first);
+        this.rest.mutate(m);
+    }
+    public boolean isCons() {
+        return true;
+    }
+
+    public ConsList<T> asCons() {
+        return this;
+    }
+
+    public Iterator<T> iterator() {
+        
+        return new ListIterator<T>(this);
+    }
+
+    
+    public IList<T> append(IList<T> given) {
+        return new ConsList<T>(this.first, this.rest.append(given));
+    }
+}
+
+class Exmpales {
+
+
+    Cell a = new Cell(0, 5, 5);
+
+
+
+    ArrayUtils until = new ArrayUtils();
+
+    ArrayList<ArrayList<Double>> heights = this.until.initializeCells();
+    ArrayList<ArrayList<Cell>> cells = this.until.convert(heights);
+//    IList<Cell> mountain = this.until.cellsToList(cells);
+//    IList<Cell> random = this.until.cellsToList(cells);
+
+
+
+//    void initiaData() {
+//        this.mountain.mutate(new InitialHeight());
+//        this.random.mutate(new InitialHeightRandomly());
+//
+//    }   
+//    void testDrawCell(Tester t) {
+//        this.initiaData();
+
+//        ForbiddenIslandWorld mountainIsland = new ForbiddenIslandWorld(mountain, 0);
+//        ForbiddenIslandWorld randomDianmand = new ForbiddenIslandWorld(random, 0);
+        //mountainIsland.bigBang((ForbiddenIslandWorld.ISLAND_SIZE + 1) * 11, 
+          //      (ForbiddenIslandWorld.ISLAND_SIZE + 1) * 11);
+        //randomIsland.bigBang((ForbiddenIslandWorld.ISLAND_SIZE + 1) * 11, 
+        //(ForbiddenIslandWorld.ISLAND_SIZE + 1) * 11);
+    
+}
+
+
+

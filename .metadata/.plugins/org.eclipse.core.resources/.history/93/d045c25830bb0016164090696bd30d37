@@ -1,0 +1,348 @@
+import java.util.ArrayList;
+import tester.*;
+import java.util.HashMap;
+
+
+import java.util.Arrays;
+interface IComparator<T> {
+     int compare(T t1, T t2);
+
+}
+
+class IntComparator implements IComparator<Integer> {
+
+    
+    public int compare(Integer t1, Integer t2) {
+        return t1 - t2;
+    }
+    
+}
+class ArrayUtils {
+    <T> ArrayList<T> insert(ArrayList<T> arr, T val, IComparator<T> comp) {
+       
+        int temp = 0;
+        while (temp < arr.size()) {
+            T val1 = arr.get(temp);
+            if (comp.compare(val1, val) < 0) {
+                temp++;
+            }
+            else {
+                arr.add(temp, val);
+                return arr;
+            }
+        }
+        arr.add(val);
+        return arr;
+    }
+   //lowIndex = 0, highIndex = arr.size() - 1;
+    <T> ArrayList<T> mergeSort(ArrayList<T> arr, int lowIndex, int highIndex, IComparator<T> comp) {
+        if (lowIndex >= highIndex) {
+            return arr;
+        }
+        else {
+            int midIndex = (lowIndex + highIndex) / 2;
+            ArrayList<T> arr1 = this.getRange(arr, 0, midIndex);
+            ArrayList<T> arr2 = this.getRange(arr, midIndex + 1, highIndex);
+            ArrayList<T> arr3 = this.mergeSort(arr1, 0, midIndex, comp);
+            ArrayList<T> arr4 = this.mergeSort(arr2, 0, highIndex - midIndex - 1, comp);
+            
+            return this.merge(arr3, arr4, comp, new ArrayList<T>());
+        }
+        
+    }
+    <T> ArrayList<T> getRange(ArrayList<T> arr, int lowindex, int highindex) {
+        ArrayList<T> setup = new ArrayList<T>();
+        for (int i = lowindex; i <= highindex; i++) {
+            setup.add(arr.get(i));
+        }
+        return setup;   
+    }
+    
+    <T> ArrayList<T> merge(ArrayList<T> arr1, ArrayList<T> arr2, IComparator<T> comp, ArrayList<T> acc) {
+        if (arr1.isEmpty()) {
+            acc.addAll(arr2);
+            return acc;  
+        }
+        else if (arr2.isEmpty()) {
+            acc.addAll(arr1);
+            return acc;
+        }
+        else {
+            T arr1Item = arr1.get(0);
+            T arr2Item = arr2.get(0);
+            if (comp.compare(arr1Item, arr2Item) < 0) {
+                
+                acc.add(arr1Item);
+                arr1.remove(0);
+                return this.merge(arr1, arr2, comp, acc);
+            }
+            else {
+                acc.add(arr2Item);
+                arr2.remove(0);
+                return this.merge(arr1, arr2, comp, acc);
+            }
+        }
+    }
+    <T> ArrayList<T> append(ArrayList<T> arr1, ArrayList<T> arr2) {
+        for (int i = 0; i < arr2.size(); i++) {
+            arr1.add(arr2.get(i));   
+        }
+        return arr1;
+    }
+
+    // EFFECT: Exchanges the values at the given two indices in the given array
+    <T> void swap(ArrayList<T> arr, int index1, int index2) {
+        T oldValueAtIndex1 = arr.get(index1);
+        T oldValueAtIndex2 = arr.get(index2);
+
+        arr.set(index1, oldValueAtIndex2);
+        arr.set(index2, oldValueAtIndex1);
+    }
+
+    <T, U> ArrayList<U> map(ArrayList<T> arr, IFunc<T, U> func) {
+        ArrayList<U> result = new ArrayList<U>();
+        for(T t : arr) {
+            result.add(func.apply(t));
+        }
+        return result;
+    }
+    // Returns the index of the first item passing the predicate,
+    // or -1 if no such item was found
+    <T> int findHelp(ArrayList<T> arr, IPred<T> whichOne, int index) {
+        if (index >= arr.size()) {
+            return -1;
+        }
+        else if (whichOne.apply(arr.get(index))) {
+            return index;
+        }
+        else {
+            return findHelp(arr, whichOne, index + 1);
+        }
+    }
+    // Returns the index of the target string in the given ArrayList, or -1 if the string is not found
+    // Assumes that the given ArrayList is sorted aphabetically
+    // Assumes that [lowIdx, highIdx) is a semi-open interval of indices
+    int binarySearchHelp_v2(ArrayList<String> strings, String target, int lowIdx, int highIdx) {
+        int midIdx = (lowIdx + highIdx) / 2;
+        if (lowIdx >= highIdx) {
+            return -1;                                                           // not found
+        }
+        else if (target.compareTo(strings.get(midIdx)) == 0) {
+            return midIdx;                                                       // found it!
+        }
+        else if (target.compareTo(strings.get(midIdx)) > 0) {
+            return this.binarySearchHelp_v2(strings, target, midIdx + 1, highIdx); // too low
+        }
+        else {
+            return this.binarySearchHelp_v2(strings, target, lowIdx, midIdx);     // too high
+        }
+    }
+    // EFFECT: Sorts the given list of strings alphabetically
+    void sort(ArrayList<String> arr) {
+        for (int idx = 0;                                   // (1)
+                idx < arr.size();                              // (2)
+                idx = idx + 1) {                               // (4)
+            // (3)
+            //int idxOfMinValue = ...find minimum value in not-yet-sorted part...
+            //      this.swap(arr, minIdx, idxOfMinValue);
+        }
+    }
+    <U> ArrayList<U> buildList(int n, IFunc<Integer, U> func) {
+        ArrayList<U> result = new ArrayList<U>();
+        for (int i = 0; i < n; i = i + 1) {
+            result.add(func.apply(i));
+        }
+        return result;
+    }
+    // Capitalizes the titles of all books in the given ArrayList
+    void capitalizeTitles(ArrayList<Book> books) {
+        for (Book b : books) {
+            b.capitalizeTitle();
+        }
+    }
+
+    boolean getsToOne(int n) {
+        while (n > 1) {
+            if (n % 2 == 0) {
+                n = n / 2;
+            }
+            else {
+                n = 3 * n + 1;
+            }
+        }
+        return true;
+    }
+    // count the occurence of n in the arrayList
+    int count(ArrayList<Integer> arr, int n) {
+        int temp = 0;
+        for (int i = 0; i < arr.size(); i++) {
+            if (n == arr.get(i)) {
+                temp++;
+            }
+        }
+        return temp;
+    }
+    HashMap<Integer, Integer> build(ArrayList<Integer> arr) {
+        HashMap<Integer, Integer> setup = new HashMap<Integer, Integer>();
+        for (int i = 0; i < 10; i++) {
+            setup.put(i, this.count(arr, i));
+        }
+        return setup; 
+    }
+
+    ArrayList<Integer> HashToArray(HashMap<Integer, Integer> hash) {
+        ArrayList<Integer> setup = new ArrayList<Integer>();
+        for(int i = 0; i < hash.size(); i++) {
+            int temp = hash.get(i);
+            setup.add(temp);
+        }
+        return setup;
+
+    }
+    int findFirst(ArrayList<Integer> arr) {
+        int temp = 0;
+        for (int i = 0; i < arr.size(); i++) {
+            if (arr.get(i) != 0) {
+                return i;
+            }
+        }
+        return temp;
+    }
+    int findMax(ArrayList<Integer> arr) {
+        int temp = 0;
+        for (int i = 0; i < arr.size(); i++) {
+            if (arr.get(i) > temp) {
+                temp = arr.get(i);
+            }
+
+        }
+        return temp;
+    }
+    <S,T> ArrayList<S> map(ArrayList<T> arr, T2S<T, S> tt) {
+        ArrayList<S> setup = new ArrayList<S>();
+        for (T a : arr) {
+            S temp = tt.apply(a);
+            setup.add(temp);
+        }
+        return setup;
+
+    }
+}
+
+//to represent a function from the type T to the type S
+interface T2S<T, S>{
+    //produce an integer value from the given one
+    public S apply(T i);
+}
+
+class ConvertValue implements T2S<Integer, Integer> {
+    int low;
+    int high;
+    int size;
+
+
+    public Integer apply(Integer i) {
+        if (i <= low) {
+            return 0;
+        }
+        else if (i >= high) {
+            return this.size;
+        }
+        else {
+            return size * (i - low) / (high - low);
+        }
+
+
+
+    }
+
+}
+
+
+class Book {
+    String title;
+    String author;
+    int yob;
+    Book(String title, String author, int yob) {
+        this.title = title;
+        this.author = author;
+        this.yob = yob;
+    }
+
+    // EFFECT: Capitalizes this book's title
+    void capitalizeTitle() {
+        this.title = this.title.toUpperCase();
+    } 
+}
+
+interface IFunc<T, U> {
+    U apply(T t);
+}
+
+interface IPred<T> {
+    boolean apply(T t);
+}
+
+//interface DTree{
+//    /** The original list of characters used in encoding and decoding */
+//    ArrayList<Character> alphabet =
+//            new ArrayList<Character>(Arrays.asList(
+//                    ’a’, ’b’, ’c’, ’d’, ’e’, ’f’, ’g’, ’h’, ’i’, ’j’,
+//                    ’k’, ’l’, ’m’, ’n’, ’o’, ’p’, ’q’, ’r’, ’s’,
+//                    ’t’, ’u’, ’v’, ’w’, ’x’, ’y’, ’z’, ’ ’));
+//}
+//class Encoder implements DTree{
+//    Encoder(){}
+//    String encode(String source, String acc){
+//        if (source.length() > 0)
+//            return encode(source.substring(1),
+//                    acc + alphabet.get((alphabet.indexOf(source.charAt(0)) + acc.length()) % 27));
+//        else{
+//            return acc;
+//        }
+//    }
+//    String decode(String source, String acc){
+//        if (source.length() > 0)
+//            return decode(source.substring(1),
+//                    acc + alphabet.get((alphabet.indexOf(source.charAt(0)) - acc.length()+ 27) % 27));
+//        else {
+//            return acc;
+//        }
+//    }
+//}
+
+
+class ExampleArrayLists {
+    ArrayList<Integer> an = new ArrayList<Integer>( Arrays.asList(6, 0, 7, 1, 9, 4, 4, 6, 1, 0, 5));
+    ArrayUtils u = new ArrayUtils();
+    HashMap<Integer, Integer> anHash = u.build(an);
+    ArrayList<Integer> arry = u.HashToArray(anHash);
+    IComparator<Integer> intcom = new IntComparator();
+    ArrayList<Integer> arr2 = u.mergeSort(an, 0, 10, intcom);
+    ArrayList<Integer> arr3 = u.insert(arr2, 8, intcom);
+    
+    
+
+
+    void testGet(Tester t) {
+
+        ArrayList<String> someStrings = new ArrayList<String>();
+        t.checkException(new IndexOutOfBoundsException("Index: 0, Size: 0"),
+                someStrings, "get", 0);
+        someStrings.add("First string");
+        someStrings.add("Second string");
+        t.checkExpect(someStrings.get(0), "First string");
+        t.checkExpect(someStrings.get(1), "Second string");
+        t.checkException(new IndexOutOfBoundsException("Index: 3, Size: 2"),
+                someStrings, "get", 3);
+
+        // Insert this item at index 1, and move everything else back
+        someStrings.add(1, "Squeezed in");
+        t.checkExpect(someStrings.get(0), "First string");
+        t.checkExpect(someStrings.get(1), "Squeezed in");
+        t.checkExpect(someStrings.get(2), "Second string");
+        t.checkExpect(u.findFirst(an), 0);
+        t.checkExpect(u.findMax(an), 9);
+
+    }
+}

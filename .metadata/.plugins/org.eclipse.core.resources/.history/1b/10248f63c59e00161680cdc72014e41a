@@ -1,0 +1,220 @@
+import tester.*;
+class Deque<T> {
+    Sentinel<T> header;
+    Deque(Sentinel<T> header) {
+        this.header = header;
+    }
+    Deque() {
+        new Sentinel<T>();
+    }
+    
+    int size() {
+        return this.header.size();
+    }
+    Deque<T> addAtHead(T given) {
+        return new Deque<T>(this.header.addAtHead(given));
+        
+    }
+    Deque<T> addAtTail(T given) {
+        return new Deque<T>(this.header.addAtTail(given));
+        
+    }
+    Node<T> removeFromHead() {
+        return this.header.removeFromHead();
+        
+    }
+    Node<T> removeFromTail() {
+        return this.header.removeFromTail();
+        
+    }
+    ANode<T> find(IPred<T> p) {
+        return this.header.find(p);
+    }
+}
+
+//Represents a boolean-valued question over values of type T
+interface IPred<T> {
+    boolean apply(T t);
+}
+
+//to determine if two strings are same
+class EqualityString implements IPred<String> {
+    String str;
+    EqualityString(String str) {
+        this.str = str;
+    }
+    public boolean apply(String t) {
+        return this.str.equals(t);
+    }
+}
+
+abstract class ANode<T> {
+    ANode<T> next;
+    ANode<T> prev;
+    ANode(ANode<T> next, ANode<T> prev) {
+        this.next = next;
+        this.prev = prev;
+    }
+    ANode() {
+        
+    }
+    abstract T getT();
+    
+}
+
+class Sentinel<T> extends ANode<T>{
+    
+    
+    Sentinel() {
+        this.next = this;
+        this.prev = this;
+        
+    }  
+    Sentinel(ANode<T> next, ANode<T> prev) {
+        super(next, prev);
+    }
+    public T getT() {
+        return null;
+    }
+    int size() {
+        if (this.next.equals(this) &&
+                this.prev.equals(this))
+        {
+            return 0;
+        }
+        else if (this.next.equals(this.prev)) {
+            return 1;   
+        }
+        else {
+            Sentinel<T> sentinel = new Sentinel<T>(this.next.next, this.prev);
+            return sentinel.size() + 1;
+        }
+        
+    }
+    Sentinel<T> addAtHead(T given) {
+        if (this.next.equals(this)) {
+            return new Sentinel<T>(new Node<T>(given, this, this), new Node<T>(given, this, this));
+        }
+        else {
+            return new Sentinel<T>(new Node<T>(given, this.next, this), this.prev);
+        }
+    }
+    Sentinel<T> addAtTail(T given) {
+        if (this.next.equals(this)) {
+            return new Sentinel<T>(new Node<T>(given, this, this), new Node<T>(given, this, this));
+        }
+        else {
+            return new Sentinel<T>(this.next, new Node<T>(given, this, this.prev));
+        }
+    }
+    Node<T> removeFromHead() {
+        if (this.next.equals(this)) {
+            throw new RuntimeException("it is empty!");
+        }
+        else {
+            return (Node<T>) this.next;
+        }
+        
+    }
+    Node<T> removeFromTail() {
+        if (this.prev.equals(this)) {
+            throw new RuntimeException("it is empty!"); 
+        }
+        else {
+            return (Node<T>) this.prev;
+        }
+        
+    }
+    ANode<T> find(IPred<T> p) {
+        if (this.next.equals(this)) {
+            return this;
+        }
+        else if(p.apply((T)this.next.getT())) {
+            return this.next;
+        }
+        else {
+            this.removeFromHead();
+            return this.find(p);
+        }
+        
+    }
+   
+}
+
+class Node<T> extends ANode<T> {
+    T obj;
+    Node(T obj) {
+        
+        this.obj = obj;
+        this.next = null;
+        this.prev = null;
+    }
+    
+    Node(T obj, ANode<T> next, ANode<T> prev) {
+        super(next, prev);
+        this.obj = obj;
+        
+        next.prev = this;
+        prev.next = this;
+       
+       
+        if (this.next == null || this.prev == null) {
+            throw new IllegalArgumentException("either of the given nodes is null.");
+        }
+        
+    }
+    public T getT() {
+        return this.obj;
+    }
+    
+}
+
+
+class ExamplesDeque {
+    Deque<String> deque1 = new Deque<String>(new Sentinel<String>());
+    
+    Node<String> abc = new Node<String>("abc");
+    Node<String> bcd = new Node<String>("bcd", abc, abc);
+    Node<String> def = new Node<String>("def");
+    Node<String> cde = new Node<String>("cde", def, bcd);
+    
+    Sentinel<String> lettertring = new Sentinel<String>(abc, def);
+    Deque<String> deque2 = new Deque<String>(lettertring);
+    
+    Node<String> abc1 = new Node<String>("abc1");
+    Node<String> abc2 = new Node<String>("abc2", abc1, abc1);
+    Node<String> abc4 = new Node<String>("abc4");
+    Node<String> abc3 = new Node<String>("abc3", abc4, abc2);
+    
+    Sentinel<String> stringnumber = new Sentinel<String>(abc1, abc4);
+    Deque<String> deque3 = new Deque<String>(stringnumber);
+    
+    EqualityString a1 = new EqualityString("abc");
+    EqualityString a2 = new EqualityString("abcdes");
+    
+    
+    
+    
+    void initData() {
+        this.deque1 = new Deque<String>(new Sentinel<String>());
+        this.deque2 = new Deque<String>(lettertring);
+        this.deque3 = new Deque<String>(stringnumber);
+    }
+    
+    boolean testaddAtHead(Tester t) {
+        
+       return t.checkExpect(deque3.addAtHead("a").size(), 5) &&
+              t.checkExpect(deque2.addAtHead("b").size(), 5) &&
+              t.checkExpect(deque1.addAtHead("c").size(), 1) &&
+              t.checkExpect(deque1.addAtTail("c").size(), 1) &&
+              t.checkExpect(deque2.addAtTail("b").size(), 5) &&
+              t.checkExpect(deque3.addAtTail("a").size(), 5) &&
+              t.checkException(new RuntimeException("it is empty!"), deque1, "removeFromHead") &&
+              t.checkExpect(deque2.removeFromHead(), abc) &&
+              t.checkExpect(deque3.removeFromHead(), abc1) &&
+              t.checkException(new RuntimeException("it is empty!"), deque1, "removeFromTail") &&
+              t.checkExpect(deque2.removeFromTail(), def) &&
+              t.checkExpect(deque3.removeFromTail(), abc4);
+    }
+  
+}

@@ -1,0 +1,181 @@
+import tester.*;
+class Deque<T> {
+    Sentinel<T> header;
+    Deque(Sentinel<T> header) {
+        this.header = header;
+    }
+    Deque() {
+        new Sentinel<T>();
+    }
+    
+    int size() {
+        return this.header.size();
+    }
+    void addAtHead(T given) {
+        this.header.addAtHead(given);
+    }
+    void addAtTail(T given) {
+        this.header.addAtTail(given);
+    }
+    void removeFromHead() {
+        this.header.removeFromHead();
+    }
+}
+
+abstract class ANode<T> {
+    ANode<T> next;
+    ANode<T> prev;
+    ANode(ANode<T> next, ANode<T> prev) {
+        this.next = next;
+        this.prev = prev;
+    }
+    ANode() {
+        
+    } 
+    
+}
+
+class Sentinel<T> extends ANode<T>{
+    
+    
+    Sentinel() {
+        this.next = this;
+        this.prev = this;
+        
+    }  
+    Sentinel(ANode<T> next, ANode<T> prev) {
+        super(next, prev);
+    }
+    int size() {
+        if (this.next.equals(this) &&
+                this.prev.equals(this))
+        {
+            return 0;
+        }
+        else if (this.next.equals(this.prev)) {
+            return 1;   
+        }
+        else {
+            Sentinel<T> sentinel = new Sentinel<T>(this.next.next, this.prev);
+            return sentinel.size() + 1;
+        }
+        
+    }
+    void addAtHead(T given) {
+        new Node<T>(given, this.next, this);
+    }
+    void addAtTail(T given) {
+        new Node<T>(given, this, this.prev);
+    }
+    void removeFromHead() {
+        if (this.next.equals(this)) {
+            throw new RuntimeException("it is empty!");
+        }
+        else {
+            this.next = this.next.next;
+        }
+    }
+   
+}
+
+class Node<T> extends ANode<T> {
+    T obj;
+    Node(T obj) {
+        
+        this.obj = obj;
+        this.next = null;
+        this.prev = null;
+    }
+    
+    Node(T obj, ANode<T> next, ANode<T> prev) {
+        super(next, prev);
+        this.obj = obj;
+        
+        next.prev = this;
+        prev.next = this;
+       
+       
+        if (this.next == null || this.prev == null) {
+            throw new IllegalArgumentException("either of the given nodes is null.");
+        }
+        
+    }
+    
+}
+
+
+class ExamplesDeque {
+    Deque<String> deque1 = new Deque<String>(new Sentinel<String>());
+    
+    Node<String> abc = new Node<String>("abc");
+    Node<String> bcd = new Node<String>("bcd", abc, abc);
+    Node<String> def = new Node<String>("def");
+    Node<String> cde = new Node<String>("cde", def, bcd);
+    
+    Sentinel<String> lettertring = new Sentinel<String>(abc, def);
+    Deque<String> deque2 = new Deque<String>(lettertring);
+    
+    Node<String> abc1 = new Node<String>("abc1");
+    Node<String> abc2 = new Node<String>("abc2", abc1, abc1);
+    Node<String> abc4 = new Node<String>("abc4");
+    Node<String> abc3 = new Node<String>("abc3", abc4, abc2);
+    
+    Sentinel<String> stringnumber = new Sentinel<String>(abc1, abc4);
+    Deque<String> deque3 = new Deque<String>(stringnumber);
+    
+    void initData() {
+        this.deque1 = new Deque<String>(new Sentinel<String>());
+        this.deque2 = new Deque<String>(lettertring);
+        this.deque3 = new Deque<String>(stringnumber);
+    }
+    
+    void testsize(Tester t) {
+        this.initData();
+        
+        t.checkExpect(deque1.size(), 0);
+        t.checkExpect(deque2.size(), 4);
+        t.checkExpect(deque3.size(), 4);    
+    }
+    void testaddAtHead(Tester t) {
+        this.initData();
+       deque3.addAtHead("asdf");
+       t.checkExpect(deque3.size(), 5);
+       
+       deque2.addAtHead("qwer");
+       t.checkExpect(deque2.size(), 5);
+       
+       deque1.addAtHead("1234");
+       t.checkExpect(deque1.size(), 1);
+       
+       deque1.addAtTail("1234");
+       t.checkExpect(deque1.size(), 2);
+       
+       deque2.addAtTail("qwer");
+       t.checkExpect(deque2.size(), 6);
+       
+       deque3.addAtTail("asdf");
+       t.checkExpect(deque3.size(), 6);
+       
+       deque1.removeFromHead();
+       t.checkExpect(deque1.size(), 1);
+       
+       deque2.removeFromHead();
+       t.checkExpect(deque2.size(), 5);
+       
+       deque3.removeFromHead();
+       t.checkExpect(deque3.size(), 5);
+    }
+    
+    
+   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+}

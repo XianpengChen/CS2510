@@ -1,0 +1,30 @@
+import java.util.ArrayList;
+import tester.*;
+import javalib.impworld.*;
+import java.awt.Color;
+import javalib.worldimages.*;
+import java.util.Iterator;
+import java.util.Random;
+
+interface IComparator<T> {
+    int apply(T a, T b);
+}
+
+class IntCompare implements IComparator<Integer> {
+    
+}
+
+
+//In ArrayUtils
+//EFFECT: Sorts the given ArrayList according to the given comparator
+class Util {
+    <T> void quicksortCopying(ArrayList<T> arr, IComparator<T> comp) {
+        // Create a temporary array
+        ArrayList<T> temp = new ArrayList<T>();
+        // Make sure the temporary array is exactly as big as the given array
+        for (int i = 0; i < arr.size(); i = i + 1) {
+            temp.add(arr.get(i));
+        }
+        quicksortCopyingHelp(arr, temp, comp, 0, arr.size());
+    }
+}

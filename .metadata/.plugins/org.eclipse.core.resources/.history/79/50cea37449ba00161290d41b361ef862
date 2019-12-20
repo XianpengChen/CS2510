@@ -1,0 +1,261 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import tester.*;
+
+class Util {
+    int sum(ArrayList<Integer> given) {
+        int a = 0;
+        for (int i = 0; i< given.size(); i++) {
+            a = a + given.get(i);
+        }
+        return a;
+    }
+    boolean  positivePartialSums(ArrayList<Integer> arr) {
+        int b = this.sum(arr);
+        return b > 0;
+    }
+    // is the given ArrayList of Strings sorted lexicographically?
+    boolean isSorted(ArrayList<String> arr) {
+        ArrayList<String> b = arr;
+
+        while (b.size() > 1) {
+            String a = b.get(b.size() - 1);
+            String c = b.get(b.size() - 2);
+            if (a.compareTo(c) < 0) {
+                return false;
+            }
+            else {
+                b.remove(b.size() - 1);
+            }
+
+        }
+        return true;
+    }
+    // does source contain the sequence of Integers in sequence? 
+    //    boolean containsSequence(ArrayList<Integer> source, ArrayList<Integer> sequence) {
+    //        
+    //    }
+    int sum(Iterator<Integer> iter) {
+        int answer = 1;
+        while (iter.hasNext()) {
+            answer = answer + 1;
+            iter.remove();
+        }
+        return answer; 
+    }
+    <T> ArrayList<T> selectionSort(ArrayList<T> arr, IComparator<T> comp) {
+        //T min = arr.get(0);
+        ArrayList<T> source = arr;
+        ArrayList<T> answer = new ArrayList<T>();
+        while (source.size() > 0) {
+            T min = this.getMin(source, comp);
+            source.remove(min);
+            answer.add(min);
+        }
+        return answer;
+    }
+
+    <T>  T getMin(ArrayList<T> arr, IComparator<T> comp) {
+        T answer = arr.get(0);
+        for (int i = 0; i < arr.size(); i++) {
+            if (comp.compare(arr.get(i), answer) < 0) {
+                answer = arr.get(i);
+            }
+        }
+        return answer; 
+    }
+    <T> ArrayList<T> insertSort(ArrayList<T> arr, IComparator<T> comp) {
+        
+        int n = arr.size();
+        for (int i = 1; i < n; i++) {
+            int key = i;
+            while (key - 1 >= 0 && comp.compare(arr.get(key), arr.get(key - 1)) < 0) {
+                this.swap(arr, key, key - 1);
+                key--; 
+            }
+            key = i;
+        }
+        return arr;    
+    }
+    <T> void swap(ArrayList<T> arr, int index1, int index2) {
+        T oldValueAtIndex1 = arr.get(index1);
+        T oldValueAtIndex2 = arr.get(index2);
+       
+        arr.set(index2, oldValueAtIndex1);
+        arr.set(index1, oldValueAtIndex2);
+      }
+    
+}
+
+interface IComparator<T> {
+    int compare(T t1, T t2);
+}
+
+class Intcompare implements IComparator<Integer> {
+
+    public int compare(Integer t1, Integer t2) {
+        if (t1 < t2) {
+            return -1;
+            
+        }
+        else if (t1 == t2) {
+            return 0;
+        }
+        else {
+            return 1;
+        }
+    }
+    
+}
+
+class NumberIterator implements Iterator<Integer> {
+    int curr = 0;
+    public boolean hasNext() {
+        return curr < 10;
+    }
+    public Integer next() {
+        if (!this.hasNext()) {
+            throw new RuntimeException("no more");
+
+        }
+        else {
+            int answer = this .curr + 1;
+            int a = this.curr;
+            this.curr = a + 1;
+            return answer;
+        }
+    }
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException("Don't do this!"); 
+    }
+}
+
+class EvenNumberIterator implements Iterator<Integer> {
+    int curr = 0;
+    public boolean hasNext() {
+        return true;
+    }
+    @Override
+    public Integer next() {
+
+        int answer = this.curr + 2;
+        int a = this.curr;
+        this.curr = a + 2;
+        return answer;
+    }
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException("Don't do this!");
+    }
+}
+
+class StringIterator implements Iterator<String>, java.util.Iterator<String> {
+    String given;
+    int currIdx;
+    StringIterator(String given) {
+        this.given = given;
+        this.currIdx = 0;
+    }
+
+    public boolean hasNext() {
+        return currIdx < given.length() - 1;
+
+
+    }
+
+    @Override
+    public  String next() {
+        if (!this.hasNext()) {
+            throw new RuntimeException("no more");
+        }
+        else {
+            char answer = given.charAt(currIdx + 1);
+            String s = "" + answer;
+            this.currIdx = this.currIdx + 1;
+
+            return s;
+        } 
+    }
+
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException("Don't do this!"); 
+    }
+
+}
+
+class EachCharacter implements Iterable<String> {
+    String given;
+
+
+    public java.util.Iterator<String> iterator() {
+
+        return new StringIterator(given);
+    }
+
+
+}
+
+//Represents the subsequence of the first, third, fifth, etc. items from a given sequence
+class EveryOtherIter<T> implements Iterator<T> {
+    Iterator<T> source;
+    EveryOtherIter(Iterator<T> source) {
+        this.source = source;
+    }
+    public boolean hasNext() {
+        // this sequence has a next item if the source does
+        return this.source.hasNext();
+    }
+    public T next() {
+        T answer = this.source.next(); // gets the answer, and advances the source
+        // We need to have the source "skip" the next value
+        if (this.source.hasNext()) {
+            this.source.next(); // get the next value and ignore it
+        }
+        return answer;
+    }
+    public void remove() {
+        // We can remove an item if our source can remove the item
+        this.source.remove(); // so just delegate to the source
+    }
+}
+
+//Represents the ability to produce a sequence of values
+//of type T, one at a time
+interface Iterator<T> {
+    // Does this sequence have at least one more value?
+    boolean hasNext();
+    // Get the next value in this sequence
+    // EFFECT: Advance the iterator to the subsequent value
+    T next();
+    // EFFECT: Remove the item just returned by next()
+    // NOTE: This method may not be supported by every iterator; ignore it for now
+    void remove();
+}
+
+class Examples {
+    ArrayList<Integer> a = new ArrayList<Integer>(
+            Arrays.asList(2, 7, 1, 3, 4, 5));
+    Util u = new Util();
+    Intcompare in = new Intcompare();
+    ArrayList<Integer> sorted2 = u.insertSort(a, in);
+    ArrayList<Integer> sorted = u.selectionSort(a, in);
+   
+   
+    boolean testSelectSort(Tester t) {
+        
+        return t.checkExpect(sorted.get(5), 7) &&
+                t.checkExpect(sorted.get(0), 1) &&
+                t.checkExpect(sorted.get(1), 2) &&
+                t.checkExpect(sorted.get(2), 3) &&
+                t.checkExpect(sorted.get(3), 4) &&
+                t.checkExpect(sorted.get(4), 5);
+//               return  t.checkExpect(sorted2.get(2), 3) &&
+//                t.checkExpect(sorted2.get(3), 4) &&
+//                t.checkExpect(sorted2.get(5), 7);
+    }
+   
+}
+

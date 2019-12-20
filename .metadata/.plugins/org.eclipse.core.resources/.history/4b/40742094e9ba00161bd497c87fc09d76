@@ -1,0 +1,152 @@
+import java.util.ArrayList;
+import tester.*;
+import java.util.HashMap;
+import java.util.HashSet;
+class ArrayUtils {
+
+    // EFFECT: Exchanges the values at the given two indices in the given array
+    <T> void swap(ArrayList<T> arr, int index1, int index2) {
+        T oldValueAtIndex1 = arr.get(index1);
+        T oldValueAtIndex2 = arr.get(index2);
+
+        arr.set(index1, oldValueAtIndex2);
+        arr.set(index2, oldValueAtIndex1);
+    }
+
+    <T, U> ArrayList<U> map(ArrayList<T> arr, IFunc<T, U> func) {
+        ArrayList<U> result = new ArrayList<U>();
+        for(T t : arr) {
+            result.add(func.apply(t));
+        }
+        return result;
+    }
+    // Returns the index of the first item passing the predicate,
+    // or -1 if no such item was found
+    <T> int findHelp(ArrayList<T> arr, IPred<T> whichOne, int index) {
+        if (index >= arr.size()) {
+            return -1;
+        }
+        else if (whichOne.apply(arr.get(index))) {
+            return index;
+        }
+        else {
+            return findHelp(arr, whichOne, index + 1);
+        }
+    }
+    // Returns the index of the target string in the given ArrayList, or -1 if the string is not found
+    // Assumes that the given ArrayList is sorted aphabetically
+    // Assumes that [lowIdx, highIdx) is a semi-open interval of indices
+    int binarySearchHelp_v2(ArrayList<String> strings, String target, int lowIdx, int highIdx) {
+        int midIdx = (lowIdx + highIdx) / 2;
+        if (lowIdx >= highIdx) {
+            return -1;                                                           // not found
+        }
+        else if (target.compareTo(strings.get(midIdx)) == 0) {
+            return midIdx;                                                       // found it!
+        }
+        else if (target.compareTo(strings.get(midIdx)) > 0) {
+            return this.binarySearchHelp_v2(strings, target, midIdx + 1, highIdx); // too low
+        }
+        else {
+            return this.binarySearchHelp_v2(strings, target, lowIdx, midIdx);     // too high
+        }
+    }
+    // EFFECT: Sorts the given list of strings alphabetically
+    void sort(ArrayList<String> arr) {
+        for (int idx = 0;                                   // (1)
+                idx < arr.size();                              // (2)
+                idx = idx + 1) {                               // (4)
+            // (3)
+            //int idxOfMinValue = ...find minimum value in not-yet-sorted part...
+            //      this.swap(arr, minIdx, idxOfMinValue);
+        }
+    }
+    <U> ArrayList<U> buildList(int n, IFunc<Integer, U> func) {
+        ArrayList<U> result = new ArrayList<U>();
+        for (int i = 0; i < n; i = i + 1) {
+            result.add(func.apply(i));
+        }
+        return result;
+    }
+    // Capitalizes the titles of all books in the given ArrayList
+    void capitalizeTitles(ArrayList<Book> books) {
+        for (Book b : books) {
+            b.capitalizeTitle();
+        }
+    }
+
+    boolean getsToOne(int n) {
+        while (n > 1) {
+            if (n % 2 == 0) {
+                n = n / 2;
+            }
+            else {
+                n = 3 * n + 1;
+            }
+        }
+        return true;
+    }
+    // count the occurence of n in the arrayList
+    int count(ArrayList<Integer> arr, int n) {
+        int temp = 0;
+        for (int i = 0; i < arr.size(); i++) {
+            if (n == arr.get(i)) {
+                temp++;
+            }
+        }
+        return temp;
+    }
+    HashMap<Integer, Integer> build(ArrayList<Integer> arr) {
+        HashMap<Integer, Integer> setup = new HashMap<Integer, Integer>();
+        for (int i )
+        
+    }
+
+
+}
+
+class Book {
+    String title;
+    String author;
+    int yob;
+    Book(String title, String author, int yob) {
+        this.title = title;
+        this.author = author;
+        this.yob = yob;
+    }
+
+    // EFFECT: Capitalizes this book's title
+    void capitalizeTitle() {
+        this.title = this.title.toUpperCase();
+    } 
+}
+
+interface IFunc<T, U> {
+    U apply(T t);
+}
+
+interface IPred<T> {
+    boolean apply(T t);
+}
+
+
+class ExampleArrayLists {
+    void testGet(Tester t) {
+        ArrayList<String> someStrings = new ArrayList<String>();
+        t.checkException(new IndexOutOfBoundsException("Index: 0, Size: 0"),
+                someStrings, "get", 0);
+        someStrings.add("First string");
+        someStrings.add("Second string");
+        t.checkExpect(someStrings.get(0), "First string");
+        t.checkExpect(someStrings.get(1), "Second string");
+        t.checkException(new IndexOutOfBoundsException("Index: 3, Size: 2"),
+                someStrings, "get", 3);
+
+        // Insert this item at index 1, and move everything else back
+        someStrings.add(1, "Squeezed in");
+        t.checkExpect(someStrings.get(0), "First string");
+        t.checkExpect(someStrings.get(1), "Squeezed in");
+        t.checkExpect(someStrings.get(2), "Second string");
+
+    }
+}
